@@ -462,7 +462,7 @@ export default function GSAPTutorial() {
   }, []);
 
   const currentPattern = PATTERNS[selectedPattern];
-  const currentVariant = currentPattern.variants[selectedVariant as keyof typeof currentPattern.variants];
+  const currentVariant = currentPattern.variants[selectedVariant as keyof typeof currentPattern.variants] as any;
 
   const resetBox = () => {
     if (!gsapLoaded || typeof window === 'undefined') return;
