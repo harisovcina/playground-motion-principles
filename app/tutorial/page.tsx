@@ -1,5 +1,5 @@
 import GSAPTutorial from '@/components/GSAPTutorial';
 
-export default function Home() {
+export default function TutorialPage() {
   return <GSAPTutorial />;
 }
