@@ -1,18 +1,17 @@
-# GSAP Motion Laboratory
+# GSAP MOTION SYSTEM
 
-An interactive reference tool for learning and mastering GSAP animation patterns. Features live demos, code snippets, and a comprehensive pattern library based on production motion design principles.
+An industrial-grade testing facility for GSAP animation patterns. Features live demos, editable code, and a comprehensive pattern library with utilitarian design principles.
 
-![GSAP Motion Laboratory](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=600&fit=crop)
+![GSAP Motion System](./preview.png)
 
 ## ✨ Features
 
 - 🎨 **8 Pattern Categories** - Entering, Exiting, Transform, Hover, Feedback, Continuous, 3D, Stagger
 - 🎬 **Live Animation Demos** - Interactive playback with real-time preview
-- 💻 **Code Snippets** - Copy-ready GSAP code for each pattern
-- 🔄 **Yoyo Toggle** - Test animations with reversible playback
-- 🌓 **Dark Theme** - Retro-futuristic command center aesthetic
+- ✏️ **Editable Code** - Modify and test animation parameters live
+- 🔧 **Industrial Design** - Utilitarian interface with technical precision
 - ⚡ **Performance Focused** - GPU-accelerated transforms only
-- 📱 **Fully Responsive** - Works on desktop and mobile
+- 📱 **Fully Responsive** - Optimized for desktop and mobile
 - 🎯 **Easing Framework** - Learn when to use back.out vs back.inOut
 
 ## 🎬 Pattern Categories
@@ -124,21 +123,21 @@ So:
 ## 🎨 Design System
 
 ### Color Palette
-- **Neon Cyan** (#00ffff) - Primary accent, glowing elements
-- **Fuchsia/Magenta** - Secondary accent, energy
-- **Yellow/Amber** - Tertiary accent, warnings
-- **Deep Space Black** (#0a0a0f) - Background
+- **Industrial Yellow** (#ffcc00) - Primary accent, warnings, highlights
+- **Safety Orange** - Transform operations
+- **Warning Red** - Exit sequences and alerts
+- **Steel Gray** - Secondary elements
+- **Concrete Gray** - Backgrounds and borders
 
 ### Typography
-- **Space Grotesk** - Display font for headings
-- **JetBrains Mono** - Monospace for code and labels
+- **Oswald** - Bold condensed display font
+- **Roboto Mono** - Technical monospace for code
 
 ### Motion Effects
-- Animated grid background
-- Floating gradient orbs
-- Noise texture overlay
-- Pulsing animated gradients
-- Glowing neon shadows
+- Technical grid overlay
+- Diagonal stripe patterns
+- Industrial corner markers
+- Hard-edge borders and minimal radius
 
 ## 🔧 Tech Stack
 

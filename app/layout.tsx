@@ -1,22 +1,24 @@
 import type { Metadata } from "next"
 import "./globals.css"
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Oswald, Roboto_Mono } from 'next/font/google'
 
-const spaceGrotesk = Space_Grotesk({
+const oswald = Oswald({
   subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  variable: '--font-oswald',
   display: 'swap',
+  weight: ['400', '500', '600', '700'],
 })
 
-const jetbrainsMono = JetBrains_Mono({
+const robotoMono = Roboto_Mono({
   subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
+  variable: '--font-roboto-mono',
   display: 'swap',
+  weight: ['400', '500', '700'],
 })
 
 export const metadata: Metadata = {
-  title: "GSAP Motion Laboratory",
-  description: "Interactive animation pattern reference and learning tool",
+  title: "GSAP MOTION SYSTEM",
+  description: "Industrial animation pattern reference and testing facility",
 }
 
 export default function RootLayout({
@@ -26,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}>{children}</body>
+      <body className={`${oswald.variable} ${robotoMono.variable} antialiased`}>{children}</body>
     </html>
   )
 }

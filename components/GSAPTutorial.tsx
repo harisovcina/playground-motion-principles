@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, RotateCcw, Zap, Activity, Lock, Repeat } from 'lucide-react';
+import { Play, Zap, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Pattern data structure
 const PATTERNS = {
   entering: {
     label: "ENTERING",
-    description: "Elements materializing from void",
-    icon: "⟶",
-    color: "cyan",
+    description: "Initialization sequence",
+    icon: "▶",
+    color: "yellow",
     variants: {
       fadeUp: {
         label: "Fade + Slide Up",
@@ -71,9 +71,9 @@ const PATTERNS = {
   },
   exiting: {
     label: "EXITING",
-    description: "Elements dissolving into darkness",
-    icon: "⟵",
-    color: "magenta",
+    description: "Termination sequence",
+    icon: "◀",
+    color: "red",
     variants: {
       fadeOut: {
         label: "Fade + Slide Down",
@@ -120,9 +120,9 @@ const PATTERNS = {
   },
   transform: {
     label: "TRANSFORM",
-    description: "Morphing visible states",
-    icon: "◈",
-    color: "yellow",
+    description: "State modification",
+    icon: "◆",
+    color: "orange",
     variants: {
       expand: {
         label: "Expand",
@@ -180,9 +180,9 @@ const PATTERNS = {
   },
   hover: {
     label: "HOVER",
-    description: "Micro-interactions",
-    icon: "◉",
-    color: "green",
+    description: "Interaction feedback",
+    icon: "●",
+    color: "steel",
     variants: {
       subtle: {
         label: "Subtle",
@@ -228,9 +228,9 @@ const PATTERNS = {
   },
   feedback: {
     label: "FEEDBACK",
-    description: "User response signals",
-    icon: "⚡",
-    color: "orange",
+    description: "System response",
+    icon: "▲",
+    color: "yellow",
     variants: {
       shake: {
         label: "Error Shake",
@@ -279,9 +279,9 @@ const PATTERNS = {
   },
   continuous: {
     label: "CONTINUOUS",
-    description: "Infinite motion loops",
-    icon: "∞",
-    color: "purple",
+    description: "Loop operation",
+    icon: "⟲",
+    color: "concrete",
     variants: {
       float: {
         label: "Floating",
@@ -332,9 +332,9 @@ const PATTERNS = {
   },
   threeD: {
     label: "3D",
-    description: "Perspective transforms",
-    icon: "⬒",
-    color: "blue",
+    description: "Spatial transform",
+    icon: "◧",
+    color: "iron",
     variants: {
       flip: {
         label: "Card Flip",
@@ -390,9 +390,9 @@ const PATTERNS = {
   },
   stagger: {
     label: "STAGGER",
-    description: "Sequential cascades",
-    icon: "≡",
-    color: "pink",
+    description: "Sequential operation",
+    icon: "▥",
+    color: "steel",
     variants: {
       cascade: {
         label: "Cascade Down",
@@ -444,7 +444,8 @@ export default function GSAPTutorial() {
   const [selectedVariant, setSelectedVariant] = useState<string>('fadeUp');
   const [showCode, setShowCode] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [yoyo, setYoyo] = useState(false);
+  const [editableCode, setEditableCode] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const boxRef = useRef<HTMLDivElement>(null);
   const staggerRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -473,13 +474,13 @@ export default function GSAPTutorial() {
 
     gsap.set(boxRef.current, {
       x: 0, y: 0, scale: 1, scaleX: 1, rotation: 0, rotateX: 0, rotateY: 0,
-      opacity: 1, backgroundColor: "#00ffff", borderRadius: "16px",
-      boxShadow: "0 0 40px rgba(0, 255, 255, 0.5)", transformOrigin: "center center"
+      opacity: 1, backgroundColor: "#ffcc00", borderRadius: "2px",
+      boxShadow: "0 0 0 2px #ffcc00, 0 0 20px rgba(255, 204, 0, 0.3)", transformOrigin: "center center"
     });
 
     staggerRefs.current.forEach((ref) => {
       if (ref) {
-        gsap.set(ref, { x: 0, y: 0, scale: 1, opacity: 1, backgroundColor: "#00ffff" });
+        gsap.set(ref, { x: 0, y: 0, scale: 1, opacity: 1, backgroundColor: "#ffcc00" });
       }
     });
   };
@@ -493,172 +494,135 @@ export default function GSAPTutorial() {
     setTimeout(() => {
       const gsap = (window as any).gsap;
 
-      // Yoyo settings
-      const yoyoSettings = yoyo ? { yoyo: true, repeat: 1 } : {};
+      // If code has been edited, execute the custom code
+      if (editableCode && editableCode !== currentVariant.code) {
+        try {
+          // Replace .element with actual element reference
+          let codeToExecute = editableCode
+            .replace(/gsap\.(from|to|fromTo)\("\.element"/g, (match, method) => {
+              if (currentVariant.isStagger) {
+                return `gsap.${method}(el`;
+              }
+              return `gsap.${method}(el`;
+            })
+            .replace(/gsap\.(from|to|fromTo)\('\.element'/g, (match, method) => {
+              if (currentVariant.isStagger) {
+                return `gsap.${method}(el`;
+              }
+              return `gsap.${method}(el`;
+            });
 
-      if (currentVariant.isStagger) {
-        const els = staggerRefs.current.filter(Boolean);
+          // Create element reference
+          const el = currentVariant.isStagger
+            ? staggerRefs.current.filter(Boolean)
+            : boxRef.current;
 
-        if (selectedVariant === 'cascade') {
-          gsap.from(els, { y: 40, opacity: 0, ease: "back.out(1.7)", duration: 0.5, stagger: 0.08, ...yoyoSettings });
-        } else if (selectedVariant === 'scaleIn') {
-          gsap.from(els, { scale: 0, opacity: 0, ease: "back.out(1.7)", duration: 0.4, stagger: 0.1, ...yoyoSettings });
-        } else if (selectedVariant === 'wave') {
-          gsap.to(els, { y: -20, ease: "sine.inOut", duration: 0.6, stagger: { each: 0.1, yoyo: true, repeat: 1 } });
+          // Execute the code
+          eval(codeToExecute);
+        } catch (error) {
+          console.error('Error executing custom code:', error);
+          alert('Error in custom code. Check console for details.');
         }
-      } else if (currentVariant.animate) {
-        // For non-stagger animations, we need to wrap them to add yoyo
-        if (yoyo) {
-          const el = boxRef.current!;
-
-          // Create a custom animation with yoyo based on variant type
-          if (selectedPattern === 'entering') {
-            // For entering animations, use fromTo with yoyo
-            if (selectedVariant === 'fadeUp') {
-              gsap.fromTo(el,
-                { y: 60, opacity: 0 },
-                { y: 0, opacity: 1, ease: "back.out(1.7)", duration: 0.5, yoyo: true, repeat: 1 }
-              );
-            } else if (selectedVariant === 'fadeScale') {
-              gsap.fromTo(el,
-                { scale: 0.8, opacity: 0 },
-                { scale: 1, opacity: 1, ease: "back.out(1.7)", duration: 0.5, yoyo: true, repeat: 1 }
-              );
-            } else if (selectedVariant === 'slideRight') {
-              gsap.fromTo(el,
-                { x: -100, opacity: 0 },
-                { x: 0, opacity: 1, ease: "power3.out", duration: 0.5, yoyo: true, repeat: 1 }
-              );
-            } else if (selectedVariant === 'popIn') {
-              gsap.fromTo(el,
-                { scale: 0 },
-                { scale: 1, ease: "elastic.out(1, 0.5)", duration: 0.8, yoyo: true, repeat: 1 }
-              );
-            }
-          } else if (selectedPattern === 'transform') {
-            // For transform animations
-            if (selectedVariant === 'expand') {
-              gsap.to(el, { scale: 1.3, ease: "back.inOut(1.4)", duration: 0.5, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'widthExpand') {
-              gsap.to(el, { scaleX: 1.5, ease: "back.inOut(1.4)", duration: 0.5, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'rotate') {
-              gsap.to(el, { rotation: 180, ease: "back.inOut(1.7)", duration: 0.6, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'morphColor') {
-              gsap.to(el, { backgroundColor: "#10b981", ease: "power2.inOut", duration: 0.4, yoyo: true, repeat: 1 });
-            }
-          } else if (selectedPattern === 'hover') {
-            if (selectedVariant === 'subtle') {
-              gsap.to(el, { scale: 1.02, ease: "power2.out", duration: 0.2, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'playful') {
-              gsap.to(el, { scale: 1.08, ease: "back.out(3)", duration: 0.3, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'lift') {
-              gsap.to(el, { y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.2)", ease: "power2.out", duration: 0.25, yoyo: true, repeat: 1 });
-            }
-          } else if (selectedPattern === 'threeD') {
-            if (selectedVariant === 'flip') {
-              gsap.to(el, { rotateY: 180, ease: "power2.inOut", duration: 0.6, transformPerspective: 1000, yoyo: true, repeat: 1 });
-            } else if (selectedVariant === 'foldDown') {
-              gsap.fromTo(el,
-                { rotateX: -90, transformOrigin: "top center", transformPerspective: 800 },
-                { rotateX: 0, ease: "power3.out", duration: 0.5, yoyo: true, repeat: 1 }
-              );
-            } else if (selectedVariant === 'tilt') {
-              gsap.to(el, { rotateX: 10, rotateY: -10, ease: "power2.out", duration: 0.4, transformPerspective: 1000, yoyo: true, repeat: 1 });
-            }
-          } else {
-            // For other patterns, just run the regular animation with yoyo added via timeline
-            currentVariant.animate(el, gsap);
-          }
-        } else {
-          // Regular animation without yoyo
+      } else {
+        // Execute original animation
+        if (currentVariant.animate) {
           currentVariant.animate(boxRef.current!, gsap);
         }
       }
 
-      const duration = yoyo ? currentVariant.duration * 2000 + 500 : currentVariant.duration * 1000 + 500;
+      const duration = (currentVariant?.duration || 1) * 1000 + 500;
       setTimeout(() => setIsPlaying(false), duration);
     }, 50);
   };
 
   useEffect(() => {
     resetBox();
+    // Reset editable code when variant changes
+    if (currentVariant?.code) {
+      setEditableCode(currentVariant.code);
+      setIsEditing(false);
+    }
   }, [selectedPattern, selectedVariant, gsapLoaded]);
 
+  // Initialize editable code on first load
+  useEffect(() => {
+    if (currentVariant?.code && !editableCode) {
+      setEditableCode(currentVariant.code);
+    }
+  }, [currentVariant]);
+
   const colorMap: Record<string, string> = {
-    cyan: "from-cyan-500 to-cyan-400",
-    magenta: "from-fuchsia-500 to-pink-500",
-    yellow: "from-yellow-400 to-amber-400",
-    green: "from-emerald-400 to-teal-400",
-    orange: "from-orange-500 to-rose-500",
-    purple: "from-purple-500 to-violet-500",
-    blue: "from-blue-500 to-indigo-500",
-    pink: "from-pink-500 to-rose-400"
+    yellow: "bg-industrial-yellow",
+    red: "bg-industrial-red",
+    orange: "bg-industrial-orange",
+    steel: "bg-industrial-steel",
+    concrete: "bg-industrial-concrete",
+    iron: "bg-industrial-iron"
   };
 
-  const glowColorMap: Record<string, string> = {
-    cyan: "shadow-cyan-500/50",
-    magenta: "shadow-fuchsia-500/50",
-    yellow: "shadow-yellow-400/50",
-    green: "shadow-emerald-400/50",
-    orange: "shadow-orange-500/50",
-    purple: "shadow-purple-500/50",
-    blue: "shadow-blue-500/50",
-    pink: "shadow-pink-500/50"
+  const borderColorMap: Record<string, string> = {
+    yellow: "border-industrial-yellow",
+    red: "border-industrial-red",
+    orange: "border-industrial-orange",
+    steel: "border-industrial-steel",
+    concrete: "border-industrial-concrete",
+    iron: "border-industrial-iron"
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden font-[family-name:var(--font-display)]">
-      {/* Animated Grid Background */}
-      <div className="fixed inset-0 opacity-20">
+    <div className="min-h-screen bg-background relative overflow-x-hidden font-sans">
+      {/* Technical Grid Background */}
+      <div className="fixed inset-0 opacity-30">
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
+            linear-gradient(to right, rgba(255, 204, 0, 0.15) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 204, 0, 0.15) 1px, transparent 1px)
           `,
-          backgroundSize: '60px 60px',
-          animation: 'gridMove 20s linear infinite'
+          backgroundSize: '40px 40px'
         }} />
       </div>
 
-      {/* Noise Texture Overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-10 mix-blend-soft-light" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`
+      {/* Diagonal Stripes Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-5" style={{
+        backgroundImage: `repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(255, 204, 0, 0.3) 10px,
+          rgba(255, 204, 0, 0.3) 12px
+        )`
       }} />
 
-      {/* Floating Orbs */}
-      <div className="fixed top-20 right-20 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] animate-pulse" />
-      <div className="fixed bottom-20 left-20 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
-
-      <style jsx>{`
-        @keyframes gridMove {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(60px, 60px); }
-        }
-      `}</style>
+      {/* Industrial Corner Markers */}
+      <div className="fixed top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary opacity-40" />
+      <div className="fixed top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary opacity-40" />
+      <div className="fixed bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary opacity-40" />
+      <div className="fixed bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary opacity-40" />
 
       <div className="relative z-10 max-w-[1600px] mx-auto p-4 md:p-8 lg:p-12">
         {/* Header */}
-        <header className="mb-16 text-center">
-          <div className="inline-flex items-center gap-3 mb-6 px-6 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 backdrop-blur-sm">
-            <Activity className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-mono text-cyan-400 tracking-wider uppercase">Motion Laboratory</span>
+        <header className="mb-8 md:mb-16">
+          <div className="inline-flex items-center gap-2 md:gap-3 mb-4 md:mb-6 px-3 md:px-4 py-2 border-l-4 border-primary bg-card">
+            <Activity className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+            <span className="text-[10px] md:text-xs font-mono text-primary tracking-widest uppercase font-bold">TESTING FACILITY</span>
           </div>
 
-          <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent inline-block animate-pulse">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl font-black mb-4 md:mb-6 tracking-tighter uppercase leading-none">
+            <span className="text-primary block">
               GSAP
             </span>
-            <br />
-            <span className="text-white/90">Pattern Library</span>
+            <span className="text-foreground/90 block">MOTION SYSTEM</span>
           </h1>
 
-          <p className="text-lg text-white/60 max-w-2xl mx-auto font-light">
-            Interactive reference for mastering animation timing, easing, and motion design patterns
-          </p>
+          <div className="border-l-2 border-muted pl-3 md:pl-4">
+            <p className="text-xs md:text-base text-muted-foreground max-w-2xl uppercase tracking-wide font-mono">
+              ANIMATION PATTERN REFERENCE / TIMING ANALYSIS / EASING FUNCTIONS
+            </p>
+          </div>
         </header>
 
         {/* Pattern Selector Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-8 md:mb-12">
           {Object.entries(PATTERNS).map(([key, pattern]) => (
             <button
               key={key}
@@ -668,112 +632,72 @@ export default function GSAPTutorial() {
                 setSelectedVariant(firstVariant);
               }}
               className={`
-                group relative overflow-hidden rounded-xl p-4
-                border-2 transition-all duration-300
+                group relative overflow-hidden p-4
+                border-2 transition-all duration-200
                 ${selectedPattern === key
-                  ? `border-${pattern.color}-500 bg-gradient-to-br ${colorMap[pattern.color]} ${glowColorMap[pattern.color]} shadow-2xl scale-105`
-                  : 'border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10'
+                  ? `${borderColorMap[pattern.color]} ${colorMap[pattern.color]} text-black border-4`
+                  : 'border-border bg-card text-foreground hover:border-muted'
                 }
               `}
             >
               <div className="relative z-10">
-                <div className="text-3xl mb-2">{pattern.icon}</div>
-                <div className={`text-xs font-bold tracking-wider mb-1 ${selectedPattern === key ? 'text-black' : 'text-white'}`}>
+                <div className="text-2xl mb-2 font-bold">{pattern.icon}</div>
+                <div className="text-[10px] font-black tracking-widest leading-tight">
                   {pattern.label}
                 </div>
               </div>
-              {selectedPattern === key && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              )}
             </button>
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-12 gap-6 mb-12">
+        <div className="grid lg:grid-cols-12 gap-4 mb-12">
           {/* Variant Selector */}
-          <div className="lg:col-span-3 space-y-3">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <h3 className="text-sm font-mono text-white/60 uppercase tracking-wider mb-4">Variants</h3>
+          <div className="lg:col-span-3">
+            <div className="bg-card border-2 border-border p-4 md:p-6">
+              <h3 className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4 font-bold border-b-2 border-border pb-2">VARIANTS</h3>
               <div className="space-y-2">
                 {Object.entries(currentPattern.variants).map(([key, variant]) => (
                   <button
                     key={key}
                     onClick={() => setSelectedVariant(key)}
                     className={`
-                      w-full text-left px-4 py-3 rounded-lg transition-all duration-200
+                      w-full text-left px-3 md:px-4 py-2 md:py-3 transition-all duration-100 border-l-4 font-bold uppercase tracking-wider
                       ${selectedVariant === key
-                        ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white shadow-lg scale-105'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                        ? 'bg-primary text-primary-foreground border-primary text-xs'
+                        : 'bg-secondary text-secondary-foreground hover:bg-muted border-transparent text-xs'
                       }
                     `}
                   >
-                    <div className="font-medium">{variant.label}</div>
+                    <div>{variant.label}</div>
                   </button>
                 ))}
-              </div>
-            </div>
-
-            {/* Stats Card */}
-            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <h3 className="text-sm font-mono text-white/60 uppercase tracking-wider mb-4">Properties</h3>
-              <div className="space-y-3">
-                <div>
-                  <div className="text-xs text-white/40 mb-1 font-mono">EASING</div>
-                  <div className="text-sm text-cyan-400 font-mono">{currentVariant?.ease}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-white/40 mb-1 font-mono">DURATION</div>
-                  <div className="text-sm text-fuchsia-400 font-mono">{currentVariant?.duration}s</div>
-                </div>
               </div>
             </div>
           </div>
 
           {/* Demo Stage */}
           <div className="lg:col-span-9">
-            <div className="bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+            <div className="bg-card border-2 border-border overflow-hidden">
               {/* Controls Bar */}
-              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/20">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm font-mono text-white/80">ANIMATION STAGE</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-4 gap-3 border-b-2 border-border bg-secondary">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                    <span className="text-[10px] md:text-xs font-mono text-foreground font-bold tracking-widest">TESTING STAGE</span>
+                  </div>
+                  {editableCode && editableCode !== currentVariant?.code && (
+                    <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-industrial-orange/20 border-l-2 border-industrial-orange">
+                      <span className="text-[9px] md:text-[10px] font-mono text-industrial-orange font-bold tracking-widest">CUSTOM CODE</span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowCode(!showCode)}
-                    className="text-white/60 hover:text-white hover:bg-white/10"
-                  >
-                    {showCode ? <Lock className="w-4 h-4" /> : 'Show Code'}
-                  </Button>
-                  <Button
-                    variant={yoyo ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setYoyo(!yoyo)}
-                    className={yoyo
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white shadow-lg shadow-purple-500/50"
-                      : "text-white/60 hover:text-white hover:bg-white/10"
-                    }
-                  >
-                    <Repeat className="w-4 h-4 mr-1" />
-                    Yoyo
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetBox}
-                    disabled={isPlaying}
-                    className="text-white/60 hover:text-white hover:bg-white/10"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                   <Button
                     size="sm"
                     onClick={playAnimation}
                     disabled={isPlaying || !gsapLoaded}
-                    className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 hover:from-cyan-400 hover:to-fuchsia-400 text-white font-bold shadow-lg shadow-cyan-500/50"
+                    className="w-full sm:w-auto"
                   >
                     <Play className="w-4 h-4 mr-2 fill-current" />
                     RUN
@@ -782,26 +706,27 @@ export default function GSAPTutorial() {
               </div>
 
               {/* Animation Stage */}
-              <div className="relative p-12 md:p-20 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-black/40 to-transparent">
+              <div className="relative p-6 md:p-12 lg:p-20 min-h-[300px] md:min-h-[400px] flex items-center justify-center bg-black/80">
                 {/* Stage Grid */}
-                <div className="absolute inset-0 opacity-10" style={{
+                <div className="absolute inset-0 opacity-20" style={{
                   backgroundImage: `
-                    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+                    linear-gradient(to right, rgba(255, 204, 0, 0.2) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 204, 0, 0.2) 1px, transparent 1px)
                   `,
-                  backgroundSize: '40px 40px'
+                  backgroundSize: '20px 20px'
                 }} />
 
                 {currentVariant?.isStagger ? (
-                  <div className="flex gap-6 relative z-10">
+                  <div className="flex gap-3 md:gap-6 relative z-10">
                     {[0, 1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
                         ref={(el) => { staggerRefs.current[i] = el; }}
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center text-black font-bold text-xl"
+                        className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-black font-black text-base md:text-xl border-2"
                         style={{
-                          backgroundColor: '#00ffff',
-                          boxShadow: '0 0 40px rgba(0, 255, 255, 0.5)'
+                          backgroundColor: '#ffcc00',
+                          borderColor: '#ffcc00',
+                          boxShadow: '0 0 0 2px #ffcc00, 0 0 20px rgba(255, 204, 0, 0.3)'
                         }}
                       >
                         {i + 1}
@@ -811,83 +736,87 @@ export default function GSAPTutorial() {
                 ) : (
                   <div
                     ref={boxRef}
-                    className="w-32 h-32 rounded-2xl flex items-center justify-center relative z-10"
+                    className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center relative z-10 border-2"
                     style={{
-                      backgroundColor: '#00ffff',
-                      boxShadow: '0 0 40px rgba(0, 255, 255, 0.5)'
+                      backgroundColor: '#ffcc00',
+                      borderColor: '#ffcc00',
+                      boxShadow: '0 0 0 2px #ffcc00, 0 0 20px rgba(255, 204, 0, 0.3)'
                     }}
                   >
-                    <div className="w-12 h-12 bg-black/20 rounded-full" />
+                    <div className="w-8 h-8 md:w-12 md:h-12 bg-black border-2 border-black" />
                   </div>
                 )}
 
                 {/* Center Crosshair */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                  <div className="w-px h-8 bg-white/20" />
-                  <div className="h-px w-8 bg-white/20 -mt-4 ml-auto mr-auto" style={{ width: '32px', marginTop: '-16px', marginLeft: '-16px' }} />
+                  <div className="w-px h-12 bg-primary/40" />
+                  <div className="h-px w-12 bg-primary/40 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
               {/* Code Display */}
               {showCode && currentVariant?.code && (
-                <div className="border-t border-white/10 bg-black/60 backdrop-blur-sm">
-                  <div className="flex items-center gap-2 px-4 py-2 border-b border-white/10">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                      <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                <div className="border-t-2 border-border bg-black">
+                  <div className="flex items-center justify-between px-4 py-3 border-b-2 border-border bg-secondary">
+                    <span className="text-xs font-mono text-primary font-bold tracking-widest">SCRIPT.JS</span>
+                    <div className="flex gap-2">
+                      {!isEditing && editableCode !== currentVariant.code && (
+                        <button
+                          onClick={() => {
+                            setEditableCode(currentVariant.code);
+                          }}
+                          className="text-xs font-mono font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          RESET
+                        </button>
+                      )}
+                      {isEditing ? (
+                        <button
+                          onClick={() => setIsEditing(false)}
+                          className="text-xs font-mono font-bold uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+                        >
+                          SAVE
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setIsEditing(true)}
+                          className="text-xs font-mono font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          EDIT
+                        </button>
+                      )}
                     </div>
-                    <span className="text-xs font-mono text-white/40 ml-2">script.js</span>
                   </div>
-                  <pre className="p-6 overflow-x-auto">
-                    <code className="text-sm font-[family-name:var(--font-mono)] text-cyan-400 leading-relaxed">
-                      {currentVariant.code}
-                    </code>
-                  </pre>
+                  {isEditing ? (
+                    <textarea
+                      value={editableCode}
+                      onChange={(e) => setEditableCode(e.target.value)}
+                      className="w-full p-4 md:p-6 bg-black text-primary font-mono text-xs md:text-sm leading-relaxed font-bold resize-none focus:outline-none focus:ring-2 focus:ring-primary min-h-[200px]"
+                      spellCheck={false}
+                    />
+                  ) : (
+                    <pre className="p-4 md:p-6 overflow-x-auto">
+                      <code className="text-xs md:text-sm font-mono text-primary leading-relaxed font-bold">
+                        {editableCode || currentVariant.code}
+                      </code>
+                    </pre>
+                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Quick Reference */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="relative overflow-hidden bg-gradient-to-br from-cyan-500/10 to-transparent backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
-            <div className="relative">
-              <div className="text-3xl mb-3">⟶</div>
-              <h3 className="text-lg font-bold text-white mb-2">Invisible → Visible</h3>
-              <code className="text-sm text-cyan-400 font-mono">back.out(1.7)</code>
-              <p className="text-xs text-white/50 mt-2">Skip anticipation phase</p>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden bg-gradient-to-br from-fuchsia-500/10 to-transparent backdrop-blur-xl border border-fuchsia-500/20 rounded-2xl p-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-3xl" />
-            <div className="relative">
-              <div className="text-3xl mb-3">◈</div>
-              <h3 className="text-lg font-bold text-white mb-2">Visible → Visible</h3>
-              <code className="text-sm text-fuchsia-400 font-mono">back.inOut(1.4)</code>
-              <p className="text-xs text-white/50 mt-2">Show full journey</p>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden bg-gradient-to-br from-yellow-500/10 to-transparent backdrop-blur-xl border border-yellow-500/20 rounded-2xl p-6">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl" />
-            <div className="relative">
-              <div className="text-3xl mb-3">⟵</div>
-              <h3 className="text-lg font-bold text-white mb-2">Visible → Invisible</h3>
-              <code className="text-sm text-yellow-400 font-mono">power2.in</code>
-              <p className="text-xs text-white/50 mt-2">Accelerate out</p>
-            </div>
-          </div>
-        </div>
-
         {/* Footer */}
-        <footer className="mt-16 text-center">
-          <p className="text-sm text-white/30 font-mono">
-            Built with GSAP 3.12 • Motion Design System • {new Date().getFullYear()}
-          </p>
+        <footer className="mt-12 md:mt-16 border-t-2 border-border pt-6 md:pt-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p className="text-[10px] md:text-xs text-muted-foreground font-mono uppercase tracking-widest font-bold">
+              GSAP 3.12 MOTION SYSTEM
+            </p>
+            <p className="text-[10px] md:text-xs text-muted-foreground font-mono uppercase tracking-widest font-bold">
+              {new Date().getFullYear()} TESTING FACILITY
+            </p>
+          </div>
         </footer>
       </div>
     </div>

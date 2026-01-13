@@ -21,7 +21,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'sans-serif'],
+        sans: ['var(--font-oswald)', 'sans-serif'],
+        mono: ['var(--font-roboto-mono)', 'monospace'],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -57,11 +58,19 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        industrial: {
+          yellow: "hsl(var(--industrial-yellow))",
+          orange: "hsl(var(--industrial-orange))",
+          red: "hsl(var(--industrial-red))",
+          concrete: "hsl(var(--industrial-concrete))",
+          steel: "hsl(var(--industrial-steel))",
+          iron: "hsl(var(--industrial-iron))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 1px)",
+        sm: "calc(var(--radius) - 2px)",
       },
     },
   },
